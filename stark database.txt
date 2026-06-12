@@ -1,0 +1,6 @@
+open database
+open desktop select 'NEW PROJECT'
+double click university site
+select db.sqlite3
+browse data 
+auth_user
