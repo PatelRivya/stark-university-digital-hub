@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <h1 class="mb-4">Faculty Members</h1>
+
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <form method="get">
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <select name="department" class="form-select">
+                            <option value="">All Departments</option>
+                            {% for dept in form.department.field.queryset %}
+                            <option value="{{ dept.id }}" {% if request.GET.department|stringformat:"s" == dept.id|stringformat:"s" %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Designation</label>
+                        <select name="designation" class="form-select">
+                            <option value="">All Designations</option>
+                            <option value="PROFESSOR" {% if request.GET.designation == "PROFESSOR" %}selected{% endif %}>Professor</option>
+                            <option value="ASSOCIATE_PROF" {% if request.GET.designation == "ASSOCIATE_PROF" %}selected{% endif %}>Associate Professor</option>
+                            <option value="ASSISTANT_PROF" {% if request.GET.designation == "ASSISTANT_PROF" %}selected{% endif %}>Assistant Professor</option>
+                            <option value="LECTURER" {% if request.GET.designation == "LECTURER" %}selected{% endif %}>Lecturer</option>
+                            <option value="INSTRUCTOR" {% if request.GET.designation == "INSTRUCTOR" %}selected{% endif %}>Instructor</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </form>
+            </div>
+
+            <div class="col-md-9">
+                <!-- Search -->
+                <div class="input-group mb-3">
+                    <input type="text" name="search" class="form-control" placeholder="Search faculty..."
+                           value="{{ search_query }}">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                </div>
+
+                <!-- Faculty Grid -->
+                <div class="row">
+                    {% if faculty_members %}
+                        {% for member in faculty_members %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 text-center">
+                                {% if member.photo %}
+                                <img src="{{ member.photo.url }}" class="card-img-top" alt="{{ member.full_name }}" style="height: 250px; object-fit: cover;">
+                                {% else %}
+                                <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 250px;">
+                                    <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ member.full_name }}</h5>
+                                    <p class="card-text text-muted">{{ member.get_designation_display }}</p>
+                                    <p class="card-text"><small>{{ member.department }}</small></p>
+                                    {% if member.specialization %}
+                                    <p class="card-text"><small>{{ member.specialization }}</small></p>
+                                    {% endif %}
+                                    <p class="card-text">
+                                        <a href="mailto:{{ member.email }}" class="text-decoration-none">
+                                            <i class="bi bi-envelope"></i> {{ member.email }}
+                                        </a>
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <a href="{% url 'faculty-detail' member.slug %}" class="btn btn-sm btn-primary">View Profile</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">No faculty members found.</div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}{{ facility.name }} - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'facility-list' %}">Facilities</a></li>
+                <li class="breadcrumb-item active">{{ facility.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="mb-3">{{ facility.name }}</h1>
+                <p class="text-muted mb-4">{{ facility.get_facility_type_display }}</p>
+
+                {% if facility.image %}
+                <img src="{{ facility.image.url }}" alt="{{ facility.name }}" class="img-fluid rounded mb-4" style="max-height: 400px; width: 100%; object-fit: cover;">
+                {% endif %}
+
+                <h3>About</h3>
+                <p>{{ facility.description }}</p>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h4>Details</h4>
+                        <ul class="list-unstyled">
+                            <li><strong>Type:</strong> {{ facility.get_facility_type_display }}</li>
+                            <li><strong>Location:</strong> {{ facility.location }}</li>
+                            {% if facility.capacity %}<li><strong>Capacity:</strong> {{ facility.capacity }}</li>{% endif %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Operating Hours</h4>
+                        {% if facility.opening_time %}
+                        <p>
+                            <strong>Opening:</strong> {{ facility.opening_time|time:"H:i" }}<br>
+                            <strong>Closing:</strong> {{ facility.closing_time|time:"H:i" }}
+                        </p>
+                        {% else %}
+                        <p>Please contact for operating hours</p>
+                        {% endif %}
+                        {% if facility.contact_email %}
+                        <p><strong>Contact:</strong> <a href="mailto:{{ facility.contact_email }}">{{ facility.contact_email }}</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar">
+                    <div class="sidebar-title"><i class="bi bi-info-circle"></i> Facility Info</div>
+                    <p class="mb-2">
+                        <strong>Name:</strong> {{ facility.name }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Type:</strong> {{ facility.get_facility_type_display }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Location:</strong> {{ facility.location }}
+                    </p>
+                    {% if facility.capacity %}
+                    <p class="mb-2">
+                        <strong>Capacity:</strong> {{ facility.capacity }} people
+                    </p>
+                    {% endif %}
+                    {% if facility.opening_time %}
+                    <p class="mb-2">
+                        <strong>Hours:</strong><br>
+                        {{ facility.opening_time|time:"H:i" }} - {{ facility.closing_time|time:"H:i" }}
+                    </p>
+                    {% endif %}
+                    {% if facility.contact_email %}
+                    <p class="mb-2">
+                        <strong>Contact:</strong><br>
+                        <a href="mailto:{{ facility.contact_email }}">{{ facility.contact_email }}</a>
+                    </p>
+                    {% endif %}
+                    <p class="mb-2">
+                        <strong>Status:</strong> 
+                        <span class="badge {% if facility.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if facility.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </p>
+                </div>
+
+                <div class="sidebar mt-4">
+                    <div class="sidebar-title"><i class="bi bi-house"></i> Other Facilities</div>
+                    <a href="{% url 'facility-list' %}" class="btn btn-primary btn-sm w-100">View All Facilities</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

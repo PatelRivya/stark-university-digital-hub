@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Notices - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <h1 class="mb-4">Notices & Announcements</h1>
+
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <form method="get">
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <select name="notice_type" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="ACADEMIC" {% if request.GET.notice_type == "ACADEMIC" %}selected{% endif %}>Academic</option>
+                            <option value="ADMINISTRATIVE" {% if request.GET.notice_type == "ADMINISTRATIVE" %}selected{% endif %}>Administrative</option>
+                            <option value="EMERGENCY" {% if request.GET.notice_type == "EMERGENCY" %}selected{% endif %}>Emergency</option>
+                            <option value="GENERAL" {% if request.GET.notice_type == "GENERAL" %}selected{% endif %}>General</option>
+                            <option value="PLACEMENT" {% if request.GET.notice_type == "PLACEMENT" %}selected{% endif %}>Placement</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </form>
+            </div>
+
+            <div class="col-md-9">
+                <!-- Search -->
+                <div class="input-group mb-3">
+                    <input type="text" name="search" class="form-control" placeholder="Search notices..."
+                           value="{{ search_query }}">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                </div>
+
+                <!-- Notices List -->
+                <div class="list-group">
+                    {% if notices %}
+                        {% for notice in notices %}
+                        <a href="{% url 'notice-detail' notice.slug %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary">{{ notice.get_notice_type_display }}</span>
+                                        {% if notice.is_featured %}<span class="badge bg-warning">Featured</span>{% endif %}
+                                        {% if notice.is_urgent %}<span class="badge bg-danger">Urgent</span>{% endif %}
+                                    </div>
+                                    <h5 class="mb-1">{{ notice.title }}</h5>
+                                    <p class="mb-1 text-muted">{{ notice.content|truncatewords:30 }}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar"></i> {{ notice.created_at|date:"M d, Y" }}
+                                        {% if notice.department %} | <strong>{{ notice.department }}</strong>{% endif %}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    {% if notice.is_urgent %}<span class="badge bg-danger">!</span>{% endif %}
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">No notices found matching your criteria.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

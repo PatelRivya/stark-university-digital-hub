@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ faculty.full_name }} - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'faculty-list' %}">Faculty</a></li>
+                <li class="breadcrumb-item active">{{ faculty.full_name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="mb-2">{{ faculty.full_name }}</h1>
+                <p class="text-muted mb-4">{{ faculty.get_designation_display }} | {{ faculty.department }}</p>
+
+                {% if faculty.photo %}
+                <img src="{{ faculty.photo.url }}" alt="{{ faculty.full_name }}" class="img-fluid rounded mb-4" style="max-width: 300px; height: auto;">
+                {% endif %}
+
+                {% if faculty.bio %}
+                <h3>Bio</h3>
+                <p>{{ faculty.bio }}</p>
+                {% endif %}
+
+                {% if faculty.specialization %}
+                <h3>Specialization</h3>
+                <p>{{ faculty.specialization }}</p>
+                {% endif %}
+
+                {% if faculty.qualification %}
+                <h3>Qualification</h3>
+                <p>{{ faculty.qualification }}</p>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar">
+                    <div class="sidebar-title"><i class="bi bi-info-circle"></i> Contact Information</div>
+                    <p class="mb-2">
+                        <strong>Email:</strong><br>
+                        <a href="mailto:{{ faculty.email }}">{{ faculty.email }}</a>
+                    </p>
+                    {% if faculty.phone %}
+                    <p class="mb-2">
+                        <strong>Phone:</strong> {{ faculty.phone }}
+                    </p>
+                    {% endif %}
+                    <p class="mb-2">
+                        <strong>Department:</strong><br>
+                        <a href="{% url 'department-detail' faculty.department.slug %}">{{ faculty.department }}</a>
+                    </p>
+                    <p class="mb-2">
+                        <strong>Designation:</strong> {{ faculty.get_designation_display }}
+                    </p>
+                    {% if faculty.experience_years %}
+                    <p class="mb-2">
+                        <strong>Experience:</strong> {{ faculty.experience_years }} years
+                    </p>
+                    {% endif %}
+                    {% if faculty.office_location %}
+                    <p class="mb-2">
+                        <strong>Office Location:</strong> {{ faculty.office_location }}
+                    </p>
+                    {% endif %}
+                    {% if faculty.office_hours %}
+                    <p class="mb-2">
+                        <strong>Office Hours:</strong> {{ faculty.office_hours }}
+                    </p>
+                    {% endif %}
+                    {% if faculty.website %}
+                    <p class="mb-2">
+                        <strong>Website:</strong><br>
+                        <a href="{{ faculty.website }}" target="_blank">{{ faculty.website }}</a>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

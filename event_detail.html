@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'event-list' %}">Events</a></li>
+                <li class="breadcrumb-item active">{{ event.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="mb-3">{{ event.title }}</h1>
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ event.get_event_type_display }}</span>
+                    {% if event.is_upcoming %}<span class="badge bg-success">Upcoming</span>{% endif %}
+                    {% if event.is_ongoing %}<span class="badge bg-warning">Ongoing</span>{% endif %}
+                    {% if event.is_past %}<span class="badge bg-secondary">Past</span>{% endif %}
+                </div>
+
+                {% if event.image %}
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="img-fluid rounded mb-4" style="max-height: 400px; width: 100%; object-fit: cover;">
+                {% endif %}
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong><i class="bi bi-calendar"></i> Start Date:</strong> {{ event.start_date|date:"M d, Y H:i" }}</p>
+                        <p><strong><i class="bi bi-calendar"></i> End Date:</strong> {{ event.end_date|date:"M d, Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong><i class="bi bi-geo-alt"></i> Location:</strong> {{ event.location }}</p>
+                        {% if event.organizer %}<p><strong><i class="bi bi-person-badge"></i> Organizer:</strong> {{ event.organizer }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <h3>Description</h3>
+                <p>{{ event.description }}</p>
+
+                {% if event.registration_deadline %}
+                <div class="alert alert-info">
+                    <strong>Registration Deadline:</strong> {{ event.registration_deadline|date:"M d, Y H:i" }}
+                </div>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    {% if is_registered %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle"></i> You are registered for this event
+                    </div>
+                    {% elif event.is_past %}
+                    <div class="alert alert-secondary">
+                        This event has already passed.
+                    </div>
+                    {% elif event.capacity and remaining_capacity <= 0 %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> This event is full.
+                    </div>
+                    {% else %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'register-event' event.slug %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-pencil-square"></i> Register for Event
+                        </a>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="alert alert-warning">
+                    Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> to register for this event.
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar">
+                    <div class="sidebar-title"><i class="bi bi-info-circle"></i> Event Details</div>
+                    <p class="mb-2">
+                        <strong>Type:</strong> {{ event.get_event_type_display }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Registrations:</strong> {{ event.registrations_count }}
+                        {% if event.capacity %} / {{ event.capacity }}{% endif %}
+                    </p>
+                    {% if remaining_capacity != None %}
+                    <p class="mb-2">
+                        <strong>Remaining Capacity:</strong> 
+                        <span class="badge {% if remaining_capacity > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ remaining_capacity }}
+                        </span>
+                    </p>
+                    {% endif %}
+                    {% if event.registration_deadline %}
+                    <p class="mb-2">
+                        <strong>Registration Deadline:</strong> {{ event.registration_deadline|date:"M d, Y" }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

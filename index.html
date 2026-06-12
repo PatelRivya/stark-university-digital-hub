@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Home - University Management System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container-lg">
+        <h1 class="display-4 fw-bold mb-3">Welcome to Stark University</h1>
+        <p class="lead mb-4">Excellence in Education | Innovation in Learning | Leadership for Tomorrow</p>
+        <div class="btn-group" role="group">
+            <a href="{% url 'course-list' %}" class="btn btn-light btn-lg">
+                <i class="bi bi-book"></i> Browse Courses
+            </a>
+            <a href="{% url 'event-list' %}" class="btn btn-light btn-lg">
+                <i class="bi bi-calendar-event"></i> Upcoming Events
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="py-5 bg-white">
+    <div class="container-lg">
+        <h2 class="text-center mb-5">University Overview</h2>
+        <div class="row text-center">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-primary">{{ departments_count }}</h3>
+                        <p class="card-text">Departments</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-secondary">{{ courses_count }}</h3>
+                        <p class="card-text">Active Courses</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-success">{{ faculty_count }}</h3>
+                        <p class="card-text">Faculty Members</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-warning">{{ events_upcoming }}</h3>
+                        <p class="card-text">Upcoming Events</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Notices Section -->
+{% if featured_notices %}
+<section class="py-5">
+    <div class="container-lg">
+        <h2 class="mb-4">Latest Announcements</h2>
+        <div class="row">
+            {% for notice in featured_notices %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    {% if notice.image %}
+                    <img src="{{ notice.image.url }}" class="card-img-top" alt="{{ notice.title }}" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <span class="badge bg-primary">{{ notice.get_notice_type_display }}</span>
+                            {% if notice.is_urgent %}<span class="badge bg-danger">Urgent</span>{% endif %}
+                        </div>
+                        <h5 class="card-title">{{ notice.title }}</h5>
+                        <p class="card-text text-muted small">{{ notice.content|truncatewords:15 }}</p>
+                        <small class="text-muted"><i class="bi bi-calendar"></i> {{ notice.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{% url 'notice-detail' notice.slug %}" class="btn btn-sm btn-primary">Read More</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Events Section -->
+{% if featured_events %}
+<section class="py-5 bg-light">
+    <div class="container-lg">
+        <h2 class="mb-4">Featured Events</h2>
+        <div class="row">
+            {% for event in featured_events %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    {% if event.image %}
+                    <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text text-muted">
+                            <i class="bi bi-calendar"></i> {{ event.start_date|date:"M d, Y H:i" }}<br>
+                            <i class="bi bi-geo-alt"></i> {{ event.location }}
+                        </p>
+                        <div class="mb-2">
+                            <span class="badge bg-info">{{ event.get_event_type_display }}</span>
+                            {% if event.registrations_count %}
+                            <span class="badge bg-secondary">{{ event.registrations_count }} Registered</span>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small">{{ event.description|truncatewords:20 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{% url 'event-detail' event.slug %}" class="btn btn-sm btn-secondary">View Event</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Upcoming Events List -->
+{% if upcoming_events %}
+<section class="py-5">
+    <div class="container-lg">
+        <h2 class="mb-4">Upcoming Events</h2>
+        <div class="list-group">
+            {% for event in upcoming_events %}
+            <a href="{% url 'event-detail' event.slug %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-1">{{ event.title }}</h5>
+                        <p class="mb-1 text-muted">
+                            <i class="bi bi-calendar"></i> {{ event.start_date|date:"M d, Y H:i" }} 
+                            | <i class="bi bi-geo-alt"></i> {{ event.location }}
+                        </p>
+                        <small>{{ event.event_type }}</small>
+                    </div>
+                    <span class="badge bg-primary rounded-pill">{{ event.registrations_count|default:0 }} Registered</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'event-list' %}" class="btn btn-primary">View All Events</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Quick Links Section -->
+<section class="py-5 bg-light">
+    <div class="container-lg">
+        <h2 class="text-center mb-5">Quick Access</h2>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'department-list' %}" class="btn btn-outline-primary btn-lg w-100">
+                    <i class="bi bi-building"></i> Departments
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'course-list' %}" class="btn btn-outline-success btn-lg w-100">
+                    <i class="bi bi-book"></i> Courses
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'faculty-list' %}" class="btn btn-outline-info btn-lg w-100">
+                    <i class="bi bi-person-badge"></i> Faculty
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'facility-list' %}" class="btn btn-outline-secondary btn-lg w-100">
+                    <i class="bi bi-house"></i> Facilities
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

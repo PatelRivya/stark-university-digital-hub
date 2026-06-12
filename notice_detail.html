@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}{{ notice.title }} - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'notice-list' %}">Notices</a></li>
+                <li class="breadcrumb-item active">{{ notice.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="mb-3">{{ notice.title }}</h1>
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ notice.get_notice_type_display }}</span>
+                    {% if notice.is_featured %}<span class="badge bg-warning">Featured</span>{% endif %}
+                    {% if notice.is_urgent %}<span class="badge bg-danger">Urgent</span>{% endif %}
+                </div>
+
+                {% if notice.image %}
+                <img src="{{ notice.image.url }}" alt="{{ notice.title }}" class="img-fluid rounded mb-4" style="max-height: 400px; width: 100%; object-fit: cover;">
+                {% endif %}
+
+                <div class="mb-4">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar"></i> Published: {{ notice.created_at|date:"M d, Y H:i" }}<br>
+                        {% if notice.expiry_date %}
+                        <i class="bi bi-exclamation-circle"></i> Expires: {{ notice.expiry_date|date:"M d, Y" }}
+                        {% endif %}
+                    </small>
+                </div>
+
+                <div class="content">
+                    {{ notice.content|linebreaks }}
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar">
+                    <div class="sidebar-title"><i class="bi bi-info-circle"></i> Notice Details</div>
+                    <p class="mb-2">
+                        <strong>Type:</strong> {{ notice.get_notice_type_display }}
+                    </p>
+                    {% if notice.department %}
+                    <p class="mb-2">
+                        <strong>Department:</strong> <a href="{% url 'department-list' %}?search={{ notice.department }}">{{ notice.department }}</a>
+                    </p>
+                    {% endif %}
+                    {% if notice.posted_by %}
+                    <p class="mb-2">
+                        <strong>Posted By:</strong> {{ notice.posted_by.get_full_name }}
+                    </p>
+                    {% endif %}
+                    <p class="mb-2">
+                        <strong>Published:</strong> {{ notice.created_at|date:"M d, Y" }}
+                    </p>
+                    {% if notice.expiry_date %}
+                    <p class="mb-2">
+                        <strong>Expires:</strong> {{ notice.expiry_date|date:"M d, Y" }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12">
+                <a href="{% url 'notice-list' %}" class="btn btn-secondary">Back to Notices</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

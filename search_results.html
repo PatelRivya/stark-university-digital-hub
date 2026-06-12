@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - Stark University{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <h1 class="mb-4"><i class="bi bi-search"></i> Search Results</h1>
+        
+        {% if query %}
+        <div class="alert alert-info mb-4">
+            <strong>Search Query:</strong> "{{ query }}" 
+            <br><small class="text-muted">Searching across departments, courses, faculty, events, and more...</small>
+        </div>
+        {% else %}
+        <div class="alert alert-warning mb-4">
+            <i class="bi bi-exclamation-circle"></i> No search query provided. Please enter a search term above.
+        </div>
+        {% endif %}
+
+        <!-- Search Statistics -->
+        {% if results.departments or results.courses or results.faculty or results.events or results.notices %}
+        <div class="row mb-4">
+            <div class="col-md-2 mb-2">
+                <div class="text-center p-3 bg-light rounded">
+                    <h4 style="color: var(--primary-color);">{{ results.departments|length }}</h4>
+                    <small>Departments</small>
+                </div>
+            </div>
+            <div class="col-md-2 mb-2">
+                <div class="text-center p-3 bg-light rounded">
+                    <h4 style="color: var(--primary-color);">{{ results.courses|length }}</h4>
+                    <small>Courses</small>
+                </div>
+            </div>
+            <div class="col-md-2 mb-2">
+                <div class="text-center p-3 bg-light rounded">
+                    <h4 style="color: var(--primary-color);">{{ results.faculty|length }}</h4>
+                    <small>Faculty</small>
+                </div>
+            </div>
+            <div class="col-md-2 mb-2">
+                <div class="text-center p-3 bg-light rounded">
+                    <h4 style="color: var(--primary-color);">{{ results.events|length }}</h4>
+                    <small>Events</small>
+                </div>
+            </div>
+            <div class="col-md-2 mb-2">
+                <div class="text-center p-3 bg-light rounded">
+                    <h4 style="color: var(--primary-color);">{{ results.notices|length }}</h4>
+                    <small>Notices</small>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-5">
+        {% endif %}
+
+        {% if results.departments or results.courses or results.faculty or results.events or results.notices %}
+            {% if results.departments %}
+            <div class="mb-5">
+                <h3 class="mb-3"><i class="bi bi-building" style="color: var(--primary-color);"></i> Departments ({{ results.departments|length }})</h3>
+                <div class="row">
+                    {% for dept in results.departments %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ dept.name }}</h5>
+                                <p class="card-text text-muted"><strong>Code:</strong> {{ dept.code }}</p>
+                                {% if dept.head_of_department %}<p class="card-text"><small><strong>HOD:</strong> {{ dept.head_of_department }}</small></p>{% endif %}
+                                {% if dept.description %}<p class="card-text">{{ dept.description|truncatewords:20 }}</p>{% endif %}
+                                <a href="{% url 'department-detail' dept.slug %}" class="btn btn-sm btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if results.courses %}
+            <div class="mb-5">
+                <h3 class="mb-3"><i class="bi bi-book" style="color: var(--primary-color);"></i> Courses ({{ results.courses|length }})</h3>
+                <div class="row">
+                    {% for course in results.courses %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ course.code }} - {{ course.name }}</h5>
+                                <p class="card-text"><small><strong>Department:</strong> {{ course.department.code }}</small></p>
+                                <p class="card-text"><small><strong>Level:</strong> {{ course.get_level_display }}</small></p>
+                                <p class="card-text"><small><strong>Duration:</strong> {{ course.duration_months }} months | <strong>Credits:</strong> {{ course.credits }}</small></p>
+                                <p class="card-text">{{ course.description|truncatewords:15 }}</p>
+                                <a href="{% url 'course-detail' course.slug %}" class="btn btn-sm btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if results.faculty %}
+            <div class="mb-5">
+                <h3 class="mb-3"><i class="bi bi-person-badge" style="color: var(--primary-color);"></i> Faculty ({{ results.faculty|length }})</h3>
+                <div class="row">
+                    {% for member in results.faculty %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ member.full_name }}</h5>
+                                <p class="card-text text-muted">{{ member.get_designation_display }}</p>
+                                <p class="card-text"><small><strong>Department:</strong> {{ member.department }}</small></p>
+                                {% if member.specialization %}<p class="card-text"><small><strong>Specialization:</strong> {{ member.specialization }}</small></p>{% endif %}
+                                <p class="card-text"><a href="mailto:{{ member.email }}">{{ member.email }}</a></p>
+                                <a href="{% url 'faculty-detail' member.slug %}" class="btn btn-sm btn-primary">View Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if results.events %}
+            <div class="mb-5">
+                <h3 class="mb-3"><i class="bi bi-calendar-event" style="color: var(--primary-color);"></i> Events ({{ results.events|length }})</h3>
+                <div class="row">
+                    {% for event in results.events %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ event.title }}</h5>
+                                <p class="card-text"><small><strong>Type:</strong> {{ event.get_event_type_display }}</small></p>
+                                <p class="card-text"><small><strong>Date:</strong> {{ event.start_date|date:"M d, Y - H:i" }}</small></p>
+                                <p class="card-text"><small><strong>Location:</strong> {{ event.location }}</small></p>
+                                <p class="card-text">{{ event.description|truncatewords:15 }}</p>
+                                <a href="{% url 'event-detail' event.slug %}" class="btn btn-sm btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if results.notices %}
+            <div class="mb-5">
+                <h3 class="mb-3"><i class="bi bi-megaphone" style="color: var(--primary-color);"></i> Notices ({{ results.notices|length }})</h3>
+                <div class="list-group">
+                    {% for notice in results.notices %}
+                    <a href="{% url 'notice-detail' notice.slug %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ notice.title }}</h5>
+                            <small>{{ notice.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="mb-0 text-muted">{{ notice.content|truncatewords:20 }}</p>
+                        {% if notice.is_urgent %}<span class="badge bg-danger ms-2">Urgent</span>{% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info text-center">
+                <h5>No results found</h5>
+                <p class="mb-0">{% if query %}We couldn't find anything matching "{{ query }}". Try a different search term.{% else %}Enter a search term to begin.{% endif %}</p>
+            </div>
+        {% endif %}
+
+        <!-- Navigation Links -->
+        <div class="mt-5 border-top pt-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'search' %}" class="btn btn-secondary btn-lg w-100">
+                        <i class="bi bi-search"></i> New Search
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-house"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

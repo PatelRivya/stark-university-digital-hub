@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Courses - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <h1 class="mb-4">Courses</h1>
+        
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <form method="get" id="filterForm">
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <select name="department" class="form-select">
+                            <option value="">All Departments</option>
+                            {% for dept in form.department.field.queryset %}
+                            <option value="{{ dept.id }}" {% if request.GET.department|stringformat:"s" == dept.id|stringformat:"s" %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Level</label>
+                        <select name="level" class="form-select">
+                            <option value="">All Levels</option>
+                            <option value="DIPLOMA" {% if request.GET.level == "DIPLOMA" %}selected{% endif %}>Diploma</option>
+                            <option value="UG" {% if request.GET.level == "UG" %}selected{% endif %}>Undergraduate</option>
+                            <option value="PG" {% if request.GET.level == "PG" %}selected{% endif %}>Postgraduate</option>
+                            <option value="CERTIFICATE" {% if request.GET.level == "CERTIFICATE" %}selected{% endif %}>Certificate</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </form>
+            </div>
+
+            <div class="col-md-9">
+                <!-- Search -->
+                <div class="input-group mb-3">
+                    <input type="text" name="search" class="form-control" placeholder="Search courses..."
+                           value="{{ search_query }}">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                </div>
+
+                <!-- Courses -->
+                <div class="row">
+                    {% if courses %}
+                        {% for course in courses %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary">{{ course.get_level_display }}</span>
+                                        <span class="badge bg-secondary">{{ course.department.code }}</span>
+                                    </div>
+                                    <h5 class="card-title">{{ course.code }}</h5>
+                                    <h6 class="card-subtitle mb-2">{{ course.name }}</h6>
+                                    <p class="card-text small">{{ course.description|truncatewords:15 }}</p>
+                                    <p class="card-text">
+                                        <strong>Duration:</strong> {{ course.duration_months }} months<br>
+                                        {% if course.fees %}<strong>Fees:</strong> ${{ course.fees }}<br>{% endif %}
+                                        <strong>Available:</strong> <span class="badge bg-success">{{ course.available_seats }} seats</span>
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <a href="{% url 'course-detail' course.slug %}" class="btn btn-sm btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">No courses found matching your criteria.</div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

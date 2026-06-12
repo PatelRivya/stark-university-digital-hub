@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <h1 class="mb-5 text-center">Contact Us</h1>
+
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-telephone" style="font-size: 2rem; color: var(--primary-color);"></i>
+                        <h5 class="card-title mt-3">Phone</h5>
+                        <p class="card-text">+91 98253101372</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-envelope" style="font-size: 2rem; color: var(--primary-color);"></i>
+                        <h5 class="card-title mt-3">Email</h5>
+                        <p class="card-text"><a href="mailto:rivyapatel6@gmail.com">rivyapatel6@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-geo-alt" style="font-size: 2rem; color: var(--primary-color);"></i>
+                        <h5 class="card-title mt-3">Address</h5>
+                        <p class="card-text">123 Stark tower, Lal Darwaja, Ahmedabad</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <h3 class="card-title mb-4">Send us a Message</h3>
+                        
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="id_name" class="form-label">Name</label>
+                                <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                       id="id_name" name="name" required>
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                       id="id_email" name="email" required>
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_subject" class="form-label">Subject</label>
+                                <input type="text" class="form-control {% if form.subject.errors %}is-invalid{% endif %}" 
+                                       id="id_subject" name="subject" required>
+                                {% if form.subject.errors %}
+                                <div class="invalid-feedback">{{ form.subject.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_message" class="form-label">Message</label>
+                                <textarea class="form-control {% if form.message.errors %}is-invalid{% endif %}" 
+                                          id="id_message" name="message" rows="5" required></textarea>
+                                {% if form.message.errors %}
+                                <div class="invalid-feedback">{{ form.message.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

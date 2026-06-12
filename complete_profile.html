@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Profile - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <h1 class="mb-4">Complete Your Profile</h1>
+
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <p class="text-muted mb-4">Please complete your student profile information to continue.</p>
+                        
+                        <form method="post" enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_date_of_birth" class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control {% if form.date_of_birth.errors %}is-invalid{% endif %}" 
+                                           id="id_date_of_birth" name="date_of_birth">
+                                    {% if form.date_of_birth.errors %}
+                                    <div class="invalid-feedback">{{ form.date_of_birth.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Gender</label>
+                                    <div>
+                                        {% for value, label in form.gender.field.choices %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="gender" 
+                                                   id="id_gender_{{ value }}" value="{{ value }}">
+                                            <label class="form-check-label" for="id_gender_{{ value }}">{{ label }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="id_phone" name="phone">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_address" class="form-label">Address</label>
+                                <textarea class="form-control" id="id_address" name="address" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_city" class="form-label">City</label>
+                                    <input type="text" class="form-control" id="id_city" name="city">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_country" class="form-label">Country</label>
+                                    <input type="text" class="form-control" id="id_country" name="country">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_photo" class="form-label">Profile Photo</label>
+                                <input type="file" class="form-control" id="id_photo" name="photo" accept="image/*">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Complete Profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

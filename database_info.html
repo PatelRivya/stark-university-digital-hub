@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+{% block title %}Database Information - Stark University{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <h1 class="mb-4"><i class="bi bi-database"></i> Database Information</h1>
+        <p class="lead text-muted mb-5">View registrations, feedback, and user data stored in the system</p>
+
+        <!-- Tabs for different sections -->
+        <ul class="nav nav-tabs mb-4" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button" role="tab">
+                    <i class="bi bi-people"></i> Registered Students
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="feedback-tab" data-bs-toggle="tab" data-bs-target="#feedback" type="button" role="tab">
+                    <i class="bi bi-chat-left-quote"></i> Feedback Received
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+                    <i class="bi bi-person-circle"></i> All Users (Login/Register)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="enrollments-tab" data-bs-toggle="tab" data-bs-target="#enrollments" type="button" role="tab">
+                    <i class="bi bi-bookmark"></i> Course Enrollments
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="registrations-tab" data-bs-toggle="tab" data-bs-target="#registrations" type="button" role="tab">
+                    <i class="bi bi-calendar-check"></i> Event Registrations
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Registered Students Tab -->
+            <div class="tab-pane fade show active" id="students" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ total_students }}</h3>
+                                <p class="text-muted">Total Students</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ active_students }}</h3>
+                                <p class="text-muted">Active Students</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ graduated_students }}</h3>
+                                <p class="text-muted">Graduated</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ inactive_students }}</h3>
+                                <p class="text-muted">Inactive</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Roll Number</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Admission Date</th>
+                                <th>Gender</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td><strong>{{ student.roll_number }}</strong></td>
+                                <td>{{ student.user.get_full_name }}</td>
+                                <td>{{ student.user.email }}</td>
+                                <td>{{ student.phone|default:"N/A" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if student.status == 'ACTIVE' %}success{% elif student.status == 'GRADUATED' %}info{% else %}warning{% endif %}">
+                                        {{ student.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ student.admission_date|date:"M d, Y" }}</td>
+                                <td>{{ student.get_gender_display }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">No students registered yet.</div>
+                {% endif %}
+            </div>
+
+            <!-- Feedback Tab -->
+            <div class="tab-pane fade" id="feedback" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ total_feedback }}</h3>
+                                <p class="text-muted">Total Feedback</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ unread_feedback }}</h3>
+                                <p class="text-muted">Unread</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ avg_rating|default:"N/A" }}</h3>
+                                <p class="text-muted">Avg Rating</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if feedback_list %}
+                <div class="row">
+                    {% for feedback in feedback_list %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title">{{ feedback.subject }}</h5>
+                                    {% if feedback.rating %}
+                                    <span class="badge bg-warning text-dark">{{ feedback.get_rating_display }}</span>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text"><small><strong>From:</strong> {{ feedback.email }}</small></p>
+                                <p class="card-text">{{ feedback.message|truncatewords:30 }}</p>
+                                <p class="card-text"><small class="text-muted">{{ feedback.created_at|date:"M d, Y H:i" }}</small></p>
+                                {% if not feedback.is_read %}
+                                <span class="badge bg-primary">Unread</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">No feedback received yet.</div>
+                {% endif %}
+            </div>
+
+            <!-- All Users Tab -->
+            <div class="tab-pane fade" id="users" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ total_users }}</h3>
+                                <p class="text-muted">Total Users</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ active_users }}</h3>
+                                <p class="text-muted">Active Users</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ staff_users }}</h3>
+                                <p class="text-muted">Staff/Admin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if users_list %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Username</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Type</th>
+                                <th>Last Login</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users_list %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td><strong>{{ user.username }}</strong></td>
+                                <td>{{ user.get_full_name|default:"N/A" }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.is_staff %}
+                                    <span class="badge bg-danger">Staff</span>
+                                    {% elif user.is_superuser %}
+                                    <span class="badge bg-dark">Admin</span>
+                                    {% else %}
+                                    <span class="badge bg-info">User</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.last_login|date:"M d, Y H:i"|default:"Never" }}</td>
+                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">No users found.</div>
+                {% endif %}
+            </div>
+
+            <!-- Enrollments Tab -->
+            <div class="tab-pane fade" id="enrollments" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ total_enrollments }}</h3>
+                                <p class="text-muted">Total Enrollments</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ active_enrollments }}</h3>
+                                <p class="text-muted">Active</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ completed_enrollments }}</h3>
+                                <p class="text-muted">Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if enrollments_list %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Status</th>
+                                <th>Grade</th>
+                                <th>Enrollment Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enrollment in enrollments_list %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ enrollment.student.user.get_full_name }}</td>
+                                <td><strong>{{ enrollment.course.code }}</strong> - {{ enrollment.course.name }}</td>
+                                <td>
+                                    <span class="badge bg-{% if enrollment.status == 'ACTIVE' %}success{% elif enrollment.status == 'COMPLETED' %}info{% elif enrollment.status == 'FAILED' %}danger{% else %}warning{% endif %}">
+                                        {{ enrollment.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ enrollment.grade|default:"N/A" }}</td>
+                                <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">No enrollments found.</div>
+                {% endif %}
+            </div>
+
+            <!-- Event Registrations Tab -->
+            <div class="tab-pane fade" id="registrations" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ total_event_registrations }}</h3>
+                                <p class="text-muted">Total Registrations</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ registered_events }}</h3>
+                                <p class="text-muted">Registered</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 style="color: var(--primary-color);">{{ attended_events }}</h3>
+                                <p class="text-muted">Attended</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if event_registrations_list %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Student</th>
+                                <th>Event</th>
+                                <th>Status</th>
+                                <th>Registration Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for registration in event_registrations_list %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ registration.student.user.get_full_name }}</td>
+                                <td><strong>{{ registration.event.title }}</strong></td>
+                                <td>
+                                    <span class="badge bg-{% if registration.status == 'REGISTERED' %}success{% elif registration.status == 'ATTENDED' %}info{% else %}warning{% endif %}">
+                                        {{ registration.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ registration.registration_date|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">No event registrations found.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="mt-5 pt-4 border-top">
+            <h4 class="mb-3">Data Export</h4>
+            <p class="text-muted mb-3">Export database information for reporting or backup purposes.</p>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'home' %}" class="btn btn-primary w-100">
+                        <i class="bi bi-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .nav-tabs .nav-link {
+        color: var(--primary-color);
+        border-color: #dee2e6;
+    }
+    .nav-tabs .nav-link:hover {
+        border-color: #dee2e6 #dee2e6 var(--primary-color) #dee2e6;
+    }
+    .nav-tabs .nav-link.active {
+        color: #fff;
+        background-color: var(--primary-color);
+        border-color: var(--primary-color) var(--primary-color) #fff var(--primary-color);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{{ department.name }} - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'department-list' %}">Departments</a></li>
+                <li class="breadcrumb-item active">{{ department.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row mb-5">
+            <div class="col-lg-8">
+                <h1 class="mb-3">{{ department.name }}</h1>
+                <p class="lead text-muted">{{ department.code }}</p>
+                
+                {% if department.image %}
+                <img src="{{ department.image.url }}" alt="{{ department.name }}" class="img-fluid rounded mb-4" style="max-height: 400px; object-fit: cover; width: 100%;">
+                {% endif %}
+
+                {% if department.description %}
+                <h3>About</h3>
+                <p>{{ department.description }}</p>
+                {% endif %}
+
+                {% if department.head_of_department %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Head of Department</h5>
+                        <p class="card-text">{{ department.head_of_department }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Courses Section -->
+                <h3 class="mt-5 mb-3">Courses</h3>
+                {% if courses %}
+                <div class="row">
+                    {% for course in courses %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ course.code }}</h5>
+                                <h6 class="card-subtitle mb-2">{{ course.name }}</h6>
+                                <p class="card-text"><strong>Level:</strong> {{ course.get_level_display }}</p>
+                                <p class="card-text"><strong>Duration:</strong> {{ course.duration_months }} months</p>
+                                <p class="card-text"><strong>Available Seats:</strong> {{ course.available_seats }}</p>
+                                <a href="{% url 'course-detail' course.slug %}" class="btn btn-sm btn-primary">View Course</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No courses available in this department.</p>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="sidebar mb-4">
+                    <div class="sidebar-title"><i class="bi bi-info-circle"></i> Contact Information</div>
+                    {% if department.contact_email %}
+                    <p class="mb-2">
+                        <strong>Email:</strong><br>
+                        <a href="mailto:{{ department.contact_email }}">{{ department.contact_email }}</a>
+                    </p>
+                    {% endif %}
+                    {% if department.contact_phone %}
+                    <p class="mb-2">
+                        <strong>Phone:</strong> {{ department.contact_phone }}
+                    </p>
+                    {% endif %}
+                    {% if department.location %}
+                    <p class="mb-2">
+                        <strong>Location:</strong> {{ department.location }}
+                    </p>
+                    {% endif %}
+                    {% if department.established_year %}
+                    <p class="mb-2">
+                        <strong>Established:</strong> {{ department.established_year }}
+                    </p>
+                    {% endif %}
+                    {% if department.website %}
+                    <p class="mb-2">
+                        <strong>Website:</strong><br>
+                        <a href="{{ department.website }}" target="_blank">{{ department.website }}</a>
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- Faculty Section -->
+                {% if faculty %}
+                <div class="sidebar">
+                    <div class="sidebar-title"><i class="bi bi-people"></i> Faculty ({{ faculty_count }})</div>
+                    {% for f in faculty %}
+                    <a href="{% url 'faculty-detail' f.slug %}" class="sidebar-link">
+                        <i class="bi bi-person"></i> {{ f.full_name }}
+                        <small class="d-block text-muted">{{ f.get_designation_display }}</small>
+                    </a>
+                    {% endfor %}
+                    <a href="{% url 'faculty-list' %}?department={{ department.id }}" class="btn btn-sm btn-primary mt-2">View All Faculty</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

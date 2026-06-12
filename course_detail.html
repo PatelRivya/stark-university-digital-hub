@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.name }} - University Management System{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container-lg">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'course-list' %}">Courses</a></li>
+                <li class="breadcrumb-item active">{{ course.code }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="mb-2">{{ course.name }}</h1>
+                <p class="text-muted mb-4">{{ course.code }} | {{ course.department }}</p>
+
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ course.get_level_display }}</h5>
+                                <p class="card-text small">Level</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ course.duration_months }}M</h5>
+                                <p class="card-text small">Duration</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ enrolled_students }}/{{ course.max_students }}</h5>
+                                <p class="card-text small">Enrolled</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ available_seats }}</h5>
+                                <p class="card-text small">Available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Course Description</h3>
+                <p>{{ course.description }}</p>
+
+                {% if course.fees %}
+                <div class="alert alert-info">
+                    <strong>Course Fees:</strong> ${{ course.fees }}
+                </div>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    {% if is_enrolled %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle"></i> You are enrolled in this course
+                        <a href="{% url 'unenroll-course' 0 %}" onclick="alert('Please go to dashboard to unenroll'); return false;" class="btn btn-sm btn-danger float-end">Unenroll</a>
+                    </div>
+                    {% elif available_seats > 0 %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'enroll-course' course.slug %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-pencil-square"></i> Enroll Now
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> This course is full. No seats available.
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="alert alert-warning">
+                    Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> to enroll in this course.
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar mb-4">
+                    <div class="sidebar-title"><i class="bi bi-info-circle"></i> Course Information</div>
+                    <p class="mb-2">
+                        <strong>Department:</strong><br>
+                        <a href="{% url 'department-detail' course.department.slug %}">{{ course.department }}</a>
+                    </p>
+                    {% if course.credits %}
+                    <p class="mb-2">
+                        <strong>Credits:</strong> {{ course.credits }}
+                    </p>
+                    {% endif %}
+                    <p class="mb-2">
+                        <strong>Level:</strong> {{ course.get_level_display }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Duration:</strong> {{ course.duration_months }} months
+                    </p>
+                    <p class="mb-2">
+                        <strong>Enrollment Status:</strong> 
+                        {% if available_seats > 0 %}
+                        <span class="badge bg-success">Open</span>
+                        {% else %}
+                        <span class="badge bg-danger">Full</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
